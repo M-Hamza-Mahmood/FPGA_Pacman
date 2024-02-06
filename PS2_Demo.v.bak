@@ -1,0 +1,106 @@
+
+module PS2_Demo (
+	// Inputs
+	CLOCK_50,
+	KEY,
+
+	// Bidirectionals
+	PS2_CLK,
+	PS2_DAT,
+	
+	// Outputs
+	goup,
+	godown,
+	goleft,
+	goright
+);
+
+/*****************************************************************************
+ *                           Parameter Declarations                          *
+ *****************************************************************************/
+
+
+/*****************************************************************************
+ *                             Port Declarations                             *
+ *****************************************************************************/
+
+// Inputs
+input				CLOCK_50;input		[3:0]	KEY;
+
+// Bidirectionals
+inout				PS2_CLK;
+inout				PS2_DAT;
+
+// Outputs
+// Output for arrow keys
+output goup;
+output godown;
+output goleft;
+output goright;
+
+
+/*****************************************************************************
+ *                 Internal Wires and Registers Declarations                 *
+ *****************************************************************************/
+
+// Internal Wires
+wire		[7:0]	ps2_key_data;
+wire				ps2_key_pressed;
+
+// Internal Registers
+
+// State Machine Registers
+
+/*****************************************************************************
+ *                         Finite State Machine(s)                           *
+ *****************************************************************************/
+
+
+/*****************************************************************************
+ *                             Sequential Logic                              *
+ *****************************************************************************/
+
+always @(posedge CLOCK_50)
+begin
+	if (KEY[0] == 1'b0)
+		goup <= 8'h00;
+		godown <= 8'h00;
+		goleft <= 8'h00;
+		goright <= 8'h00;
+	else if (ps2_key_pressed == 1'b1)
+		if (ps2_key_data == 8'h75) //UP
+			goup <= 1'b1;
+		else if (ps2_key_data == 8'h72) //DOWN
+			godown <= 1'b1;
+		else if (ps2_key_data == 8'h6B) //LEFT
+			goleft <= 1'b1;
+		else if (ps2_key_data == 8'h74) //RIGHT
+			goright <= 1'b1;
+end
+
+/*****************************************************************************
+ *                            Combinational Logic                            *
+ *****************************************************************************/
+
+
+
+/*****************************************************************************
+ *                              Internal Modules                             *
+ *****************************************************************************/
+
+PS2_Controller PS2 (
+	// Inputs
+	.CLOCK_50				(CLOCK_50),
+	.reset				(~KEY[0]),
+
+	// Bidirectionals
+	.PS2_CLK			(PS2_CLK),
+ 	.PS2_DAT			(PS2_DAT),
+
+	// Outputs
+	.received_data		(ps2_key_data),
+	.received_data_en	(ps2_key_pressed)
+);
+
+
+endmodule
